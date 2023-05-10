@@ -1,0 +1,94 @@
+#include <iostream>
+#include <fstream>
+#include <stdlib.h>
+#include <string>
+#include <set>
+#include <ctime>
+#pragma warning(disable : 4996)
+using namespace std;
+string pathFrom;
+string pathTo;
+
+//QUESTION FILE CONTAINS QUESTS IN FORMAT:
+//-QUEST-ANSWER-\n
+//-QUEST-ANSWER-\n
+//...
+//-QUEST-ANSWER-\n
+
+int main() {
+    
+    cout << "Enter path to file with questions:" << endl;
+    getline(cin, pathFrom);
+    
+    cout << "Enter path to history file:" << endl;
+    getline(cin, pathTo);
+
+
+    ifstream counterStream(pathFrom);
+    int cnt = 0;
+    string line;
+    while (getline(counterStream, line)) {
+        cnt++;
+    }
+    counterStream.close(); 
+
+    cout << "How many questions will be in the quiz? " << endl;
+    int a;
+    cin >> a;
+
+    int r = 0;
+    int w = 0;
+    set<int> helper;
+    int answer_shet = 0;
+    for (int i = 0; i < a; i++) {
+        srand(time(0)); 
+        int n = 1 + rand() % cnt;
+        while (helper.find(n) != helper.end()) {
+            srand(time(0)); 
+            int n = 1 + rand() % cnt;
+        }
+        helper.insert(n);
+        ifstream reader(pathFrom);
+        if (reader.is_open()) {
+            string quest;
+            for (int j = 1; j <= n; j++) {
+                getline(reader, quest);
+            }
+            int i = 1;
+            string question = "";
+            string answer = "";
+            while (quest[i] != '-') {
+                question = question + quest[i];
+                i++;
+            }
+            i++;
+            while (quest[i] != '-') {
+                answer = answer + quest[i];
+                i++;
+            }
+            cout << question << endl;
+            string user_answer;
+            cin >> user_answer;
+            if (user_answer == answer) {
+                r++;
+            }
+            else {
+                w++;
+            }
+        }
+        else {
+            cout << "File not found" << endl;
+        }
+        reader.close();
+    }
+    ofstream out;
+    out.open(pathTo);
+    cout << "Correct answers: " << r << endl;
+    cout << "Incorrect answers: " << w << endl;
+    time_t now = time(0);
+    string dt = ctime(&now);
+    out << dt;
+    out << "Correct answers: " << r << endl;
+    out << "Incorrect answers: " << w << endl;
+    out << "______________________________" << endl; 
+}
